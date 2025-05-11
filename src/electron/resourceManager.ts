@@ -1,27 +1,48 @@
 import OsUtils from "os-utils";
 import fs from "fs";
+import { BrowserWindow } from "electron";
 
 const POLLING_INTERVAL = 500;
 
-export function pollResources() {
+export function pollResources(mainWindow: BrowserWindow) {
   setInterval(async () => {
-    await getCPUusage();
-    const memUsgae = await getMemoryUsage();
+    const cpuUsage = await getCPUusage();
+    const memUsage = await getMemoryUsage();
     const diskUsage = await getDiskUsage();
-    console.log(`MEM: ${memUsgae}% DISK: ${diskUsage.usage}%`);
+
+    mainWindow.webContents.send("statistics", {
+      cpu: { total: 100, usage: cpuUsage * 100 },
+      mem: memUsage,
+      disk: diskUsage
+    });
+
+    console.log(`CPU: ${cpuUsage * 100}% MEM: ${memUsage.usage}% DISK: ${diskUsage.usage * 100}%`);
   }, POLLING_INTERVAL);
 }
 
+export async function getStaticData() {
+  return {
+    cpu: { total: 100, usage: await getCPUusage() * 100 },
+    mem: await getMemoryUsage(),
+    disk: await getDiskUsage()
+  }
+}
 
-async function getCPUusage() {
-  return await OsUtils.cpuUsage((perchantage) => {
-    console.log(`CPU: ${perchantage}%`);
+function getCPUusage(): Promise<number> {
+  return new Promise((resolve) => {
+    OsUtils.cpuUsage((percentage) => {
+      resolve(percentage);
+    });
   });
 }
 
-
 async function getMemoryUsage() {
-  return await 1 - OsUtils.freememPercentage();
+  const totalMem = OsUtils.totalmem();
+  const freeMem = OsUtils.freemem();
+  return {
+    total: Math.floor(totalMem * 1024), // Convert to MB
+    usage: Math.floor((totalMem - freeMem) * 1024) // Convert to MB
+  };
 }
 
 async function getDiskUsage() {

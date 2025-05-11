@@ -1,6 +1,9 @@
 {
   "appId": "com.deepanshu.electron-app",
   "icon": "./icon.png",
+  "extraResources": [
+    "dist-electron/preload.cjs"
+  ],
   "files": [
     "dist-electron",
     "dist-react"
