@@ -10,7 +10,6 @@ function App() {
   const [disk, setDisk] = useState({ total: 0, usage: 0 });
 
   useEffect(() => {
-    //@ts-ignore
     window.electron.subscribeStatistics((data) => {
       if (data?.cpu) setCpu(data.cpu);
       if (data?.mem) setMem(data.mem);

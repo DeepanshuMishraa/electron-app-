@@ -1,7 +1,6 @@
 import OsUtils from "os-utils";
 import fs from "fs";
 import { BrowserWindow } from "electron";
-
 const POLLING_INTERVAL = 500;
 
 export function pollResources(mainWindow: BrowserWindow) {
@@ -20,7 +19,7 @@ export function pollResources(mainWindow: BrowserWindow) {
   }, POLLING_INTERVAL);
 }
 
-export async function getStaticData() {
+export async function getStaticData(): Promise<Statistics> {
   return {
     cpu: { total: 100, usage: await getCPUusage() * 100 },
     mem: await getMemoryUsage(),
